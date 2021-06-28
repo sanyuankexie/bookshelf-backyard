@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body xmlns:th="http://www.w3.org/1999/xhtml">
+<td class="outer" width="630" valign="top" bgcolor="#ffffff">
+    <table width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff">
+        <tbody>
+        <tr>
+            <td colspan="3" class="top-spacing" height="20">
+                <div style="font-size:1px;line-height:1px;">&nbsp;</div>
+            </td>
+        </tr>
+        <tr>
+            <td class="i-h-spacing" width="30">
+                <div style="font-size:1px;line-height:1px;">&nbsp;</div>
+            </td>
+            <td class="main" width="570" valign="top">
+                <table width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff">
+                    <tbody>
+                    <tr>
+                        <td colspan="5" height="10"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="5">
+                            <table width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#222c37">
+                                <tbody>
+                                <tr>
+                                    <td width="15">
+                                        <div style="font-size:1px;line-height:1px;">&nbsp;</div>
+                                    </td>
+                                    <td height="75" align="right"></td>
+                                    <td width="10">
+                                        <div style="font-size:1px;line-height:1px;">&nbsp;</div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" height="20"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" valign="top" align="left">
+                            <div style="font-family:Helvetica,Arial,sans-serif;font-size:28px;color:#222c37;font-weight:bold;letter-spacing:-1px;">
+                                Hello, <span style="color: #0083d4;font-family: bold" th:text="${userName}"></span>
+                            </div>
+                            <div style="font-size:20px;line-height:20px;">&nbsp;</div>
+                            <p th:utext="${#strings.replace( #strings.escapeXml(content),T(java.lang.System).getProperty('line.separator'),'&lt;br /&gt;')}"
+                               style="font-family:Helvetica,Arial,sans-serif;font-size:15px;color:#455463;line-height:20px;margin: 0 0 1em 0;"></p>
+                    </tr>
+                    <tr>
+                        <td colspan="5" valign="top" align="left"><p
+                                style="font-family:Helvetica,Arial,sans-serif;font-size:15px;color:#455463;line-height:20px">
+                            Sincerely,<br>
+                            <p style="color:#222c37;">The CSTA Family</p></p></td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" height="10"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" height="5" bgcolor="#222c37"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td class="i-h-spacing" width="30">
+                <div style="font-size:1px;line-height:1px;">&nbsp;</div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3" class="i-v-spacing" height="30">
+                <div style="font-size:1px;line-height:1px;">&nbsp;</div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</td>
+<td class="m-h-spacing" width="30">
+    <div style="font-family:Helvetica,Arial,sans-serif;font-size:12px;">&nbsp;</div>
+</td>
+
+<td colspan="3" class="m-v-spacing" height="30">
+    <div style="font-size:1px;line-height:1px;">&nbsp;</div>
+</td>
+</body>
+</html>
