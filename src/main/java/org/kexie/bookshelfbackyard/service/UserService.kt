@@ -42,7 +42,7 @@ class UserService {
 
     /**
      * @author VisualDust
-     * @since 0.0, find a user with a specific username
+     * @since 0.0, find a user with a specific student id
      * @param username : Int, user id
      * @return a user if exist or null
      */
@@ -50,6 +50,22 @@ class UserService {
         return try {
             val example = UserExample()
             example.createCriteria().andStuIdEqualTo(stu_id)
+            userMapper.selectByExample(example)[0]
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    /**
+     * @author VisualDust
+     * @since 0.0, find a user with a specific username
+     * @param username : Int, user id
+     * @return a user if exist or null
+     */
+    fun getUserByNickname(nickname: String):User?{
+        return try {
+            val example = UserExample()
+            example.createCriteria().andNicknameEqualTo(nickname)
             userMapper.selectByExample(example)[0]
         } catch (e: Exception) {
             null
