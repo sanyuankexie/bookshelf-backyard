@@ -27,18 +27,30 @@ class UserService {
     }
 
     /**
+     * @author VisualDUst
+     * @since 0.0, check if there is an user with the specific user id
+     */
+    fun anyoneWithUserID(uid: Long) = getUserByUserID(uid) != null
+
+    /**
      * @author VisualDust
      * @since 0.0, find a user with a specific uid
      * @param uid : Long, user id
      * @return a user if exist or null
      */
-    fun getUserByUserId(uid: Long): User? {
+    fun getUserByUserID(uid: Long): User? {
         return try {
             userMapper.selectByPrimaryKey(uid)
         } catch (e: Exception) {
             null
         }
     }
+
+    /**
+     * @author VisualDUst
+     * @since 0.0, check if there is an user with the specific student id
+     */
+    fun anyoneWithStuID(stu_id: String) = getUserByStuId(stu_id) != null
 
     /**
      * @author VisualDust
@@ -60,7 +72,7 @@ class UserService {
      * @author VisualDUst
      * @since 0.0, check if there is an user with the specific nickname
      */
-    fun anyOneWithNickname(nickname: String) = getUserByNickname(nickname) == null
+    fun anyoneWithNickname(nickname: String) = getUserByNickname(nickname) != null
 
     /**
      * @author VisualDust

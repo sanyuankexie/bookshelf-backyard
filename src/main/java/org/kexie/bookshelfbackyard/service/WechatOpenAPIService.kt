@@ -6,7 +6,7 @@ import org.kexie.logUtility.common.Logger
 import org.springframework.stereotype.Service
 
 @Service
-class WeChatOpenAPIService {
+class WechatOpenAPIService {
     private val logger = Logger(this)
 
     init {

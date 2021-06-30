@@ -26,10 +26,16 @@ class UserController {
     lateinit var userService: UserService
 
     @Autowired
+    lateinit var memberService: MemberService
+
+    @Autowired
     lateinit var verificationService: VerificationCodeService
 
     @Autowired
     lateinit var objectStorageService: ObjectStorageService
+
+    @Autowired
+    lateinit var wechatOpenAPIService: WechatOpenAPIService
 
     init {
         logger.log(true, "Controller ${javaClass.simpleName} was successfully initialized")
@@ -42,62 +48,50 @@ class UserController {
     }
 
     @ResponseBody
-    @RequestMapping(value = ["/register-member"], method = arrayOf(RequestMethod.POST))
-    fun registerMember(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
-        val nickname = jsonObject["nickname"]
-        val stuID = jsonObject["student_id"]
-        val openIDCode = jsonObject["openid_code"]
-        return mutableMapOf()
-    }
-
-    @ResponseBody
     @RequestMapping(value = ["/register"], method = arrayOf(RequestMethod.POST))
-            /**
-             * @author VisualDust
-             * @since 0.0
-             *      Api located at analysthugo/signUp
-             * @param jsonObject contains :
-             *      username : String
-             *      password : String
-             *      email    : String
-             *      token    : String, can be null here.
-             * @return a result in String type, default should be "success"
-             */
     fun register(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
-        val username = jsonObject["username"]
-        val password = jsonObject["password"]
-        val email = jsonObject["email"]
-        val exist = null != userService.getUserByNickname(username.toString())
-        if (exist) return mutableMapOf(
-            "result" to "failed",
-            "reason" to "username already exists"
-        )
-        try {
-            userService.pendingUserQueue[username.toString()] = email.toString()
-            verificationService.putVerification(Verification(username.toString(),
-                "用户注册KexieBookshelf的验证码",
-                email.toString(),
-                Consumer {
-                    userService.pendingUserQueue.remove(username.toString())
-                    if (userService.putUser(username.toString(), password.toString(), email.toString()))
-                        mailService.sendMailTo(email.toString(), "欢迎来到KexieBookshelf", "您好，用户$username，您已经开始试图借书了。")
-                }), true
-            )
-        } catch (e: Exception) {
-            return mutableMapOf(
-                "result" to "failed",
-                "reason" to "email invalid"
-            )
+        val nickname = jsonObject["nickname"].toString()
+        val stuID = jsonObject["student_id"].toString()
+        val openIDCode = jsonObject["openid_code"].toString()
+        val member = memberService.getMemberByStuID(stuID)
+        return when {
+            userService.anyoneWithStuID(stuID) -> {
+                mutableMapOf("errorcode" to "1")
+            }
+            userService.anyoneWithNickname(nickname) -> {
+                mutableMapOf("errorcode" to "3")
+            }
+            else -> {
+                val openID = wechatOpenAPIService.openIDOf(openIDCode)
+                try {
+                    val email = member.mail
+                    userService.pendingUserQueue[nickname] = email
+                    verificationService.putVerification(
+                        Verification(
+                            nickname,
+                            "用户注册KexieBookshelf的验证码",
+                            email.toString(),
+                            Consumer {
+                                userService.pendingUserQueue.remove(nickname)
+                                if (userService.putUser(nickname, nickname, email.toString()))
+                                    mailService.sendMailTo(
+                                        email.toString(),
+                                        "欢迎来到KexieBookshelf",
+                                        "您好，用户$nickname，您已经开始试图借书了。"
+                                    )
+                            }), true
+                    )
+                } catch (e: Exception) {
+                    mutableMapOf("errorcode" to "4")
+                }
+                logger.log(true, "doRegister AIP was called successfully")
+                mutableMapOf("errorcode" to "0")
+            }
         }
-        logger.log(true, "signup AIP was called successfully")
-        return mutableMapOf(
-            "result" to "success",
-            "reason" to "none"
-        )
     }
 
 //    @ResponseBody
-//    @RequestMapping(value = ["/register_wechat"], method = arrayOf(RequestMethod.POST))
+//    @RequestMapping(value = ["/register"], method = arrayOf(RequestMethod.POST))
 //            /**
 //             * @author VisualDust
 //             * @since 0.0
@@ -109,10 +103,27 @@ class UserController {
 //             *      token    : String, can be null here.
 //             * @return a result in String type, default should be "success"
 //             */
-//    fun register_wechat(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
-//        val username = jsonObject["username"]
-//        val password = jsonObject["password"]
-//        val email = jsonObject["email"]
+//    fun register(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
+//        val username = jsonObject["username"].toString()
+//        val password = jsonObject["password"].toString()
+//        val email = jsonObject["email"].toString()
+//        val exist = null != userService.getUserByNickname(username.toString())
+//        if (exist) return mutableMapOf(
+//            "result" to "failed",
+//            "reason" to "username already exists"
+//        )
+//        return if (doRegister(username, password, email)) {
+//            logger.log(true, "signup AIP was called successfully")
+//            mutableMapOf(
+//                "result" to "success",
+//                "reason" to "none"
+//            )
+//        } else {
+//            mutableMapOf(
+//                "result" to "failed",
+//                "reason" to "email invalid"
+//            )
+//        }
 //    }
 
 
@@ -124,6 +135,30 @@ class UserController {
         val md = MessageDigest.getInstance("SHA-256")
         return BigInteger(1, md.digest(toByteArray())).toString(16).padStart(32, '0')
     }
+
+
+    @ResponseBody
+    @RequestMapping(value = ["/login"], method = arrayOf(RequestMethod.POST))
+            /**
+             * @author VisualDust
+             * @since 0.0
+             *      Api located at bookshelf-backyard/login
+             * @param jsonObject contains   :
+             *      username : String
+             *      openid_code : openid_code
+             * @return a map contains   :
+             *      result   : String, true if succeed or false when failed
+             */
+    fun login(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
+        val username = jsonObject["username"].toString()
+        val password = wechatOpenAPIService.openIDOf(jsonObject["openid_code"].toString())
+        val result = userService.verify(username, password)
+        return mutableMapOf(
+            "result" to result.first.toString()
+        )
+    }
+
+
 
 //    @ResponseBody
 //    @RequestMapping(value = ["/login"], method = arrayOf(RequestMethod.POST))

@@ -1,5 +1,6 @@
 package org.kexie.bookshelfbackyard.service
 
+import org.kexie.bookshelfbackyard.model.Member
 import org.kexie.bookshelfbackyard.model.MemberExample
 import org.kexie.bookshelfbackyard.model.mapper.MemberMapper
 import org.kexie.logUtility.common.Logger
@@ -23,7 +24,7 @@ class MemberService {
      * @param stu_id : String student id
      * @return  exist or null
      */
-    fun anyOneWithId(stu_id: String): Boolean {
+    fun anyoneWithStuID(stu_id: String): Boolean {
         return try {
             memberMapper.selectByPrimaryKey(stu_id) != null
         } catch (e: Exception) {
@@ -37,7 +38,7 @@ class MemberService {
      * @param mail : String the email
      * @return  exist or null
      */
-    fun anyOneWithEmail(mail: String): Boolean {
+    fun anyoneWithEmail(mail: String): Boolean {
         return try {
             val example = MemberExample()
             example.createCriteria().andMailEqualTo(mail)
@@ -47,4 +48,5 @@ class MemberService {
         }
     }
 
+    fun getMemberByStuID(stu_id: String): Member = memberMapper.selectByPrimaryKey(stu_id)
 }
