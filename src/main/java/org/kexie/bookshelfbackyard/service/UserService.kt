@@ -57,12 +57,18 @@ class UserService {
     }
 
     /**
+     * @author VisualDUst
+     * @since 0.0, check if there is an user with the specific nickname
+     */
+    fun anyOneWithNickname(nickname: String) = getUserByNickname(nickname) == null
+
+    /**
      * @author VisualDust
      * @since 0.0, find a user with a specific username
      * @param username : Int, user id
      * @return a user if exist or null
      */
-    fun getUserByNickname(nickname: String):User?{
+    fun getUserByNickname(nickname: String): User? {
         return try {
             val example = UserExample()
             example.createCriteria().andNicknameEqualTo(nickname)
@@ -84,7 +90,7 @@ class UserService {
         return "$st|${this.encrypt(st)}"
     }
 
-    fun User.parse(member:Member): User {
+    fun User.parse(member: Member): User {
         val user = User()
         user.stuId = member.stuId
         user.nickname = member.name
@@ -140,10 +146,6 @@ class UserService {
             Pair(true, "success")
         else
             Pair(false, "invalid password")
-    }
-
-    companion object{
-        val loaded = mutableMapOf<String,User>()
     }
 
 //    fun User.generateToken(): TokenUtil.VDToken {

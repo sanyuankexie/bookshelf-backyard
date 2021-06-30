@@ -42,6 +42,15 @@ class UserController {
     }
 
     @ResponseBody
+    @RequestMapping(value = ["/register-member"], method = arrayOf(RequestMethod.POST))
+    fun registerMember(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
+        val nickname = jsonObject["nickname"]
+        val stuID = jsonObject["student_id"]
+        val openIDCode = jsonObject["openid_code"]
+        return mutableMapOf()
+    }
+
+    @ResponseBody
     @RequestMapping(value = ["/register"], method = arrayOf(RequestMethod.POST))
             /**
              * @author VisualDust
@@ -60,27 +69,30 @@ class UserController {
         val email = jsonObject["email"]
         val exist = null != userService.getUserByNickname(username.toString())
         if (exist) return mutableMapOf(
-                "result" to "failed",
-                "reason" to "username already exists"
+            "result" to "failed",
+            "reason" to "username already exists"
         )
         try {
             userService.pendingUserQueue[username.toString()] = email.toString()
-            verificationService.putVerification(Verification(username.toString(), "用户注册Analyst-Hugoの验证码", email.toString(),
-                    Consumer {
-                        userService.pendingUserQueue.remove(username.toString())
-                        if (userService.putUser(username.toString(), password.toString(), email.toString()))
-                            mailService.sendMailTo(email.toString(), "欢迎来到AnalystHugo", "您好，用户$username，欢迎您来到最最最最最最最最最最最最菜的时事热点分析平台AnalystHugo！我们在努力爬了，希望能早日写完全部功能....")
-                    }), true)
+            verificationService.putVerification(Verification(username.toString(),
+                "用户注册KexieBookshelf的验证码",
+                email.toString(),
+                Consumer {
+                    userService.pendingUserQueue.remove(username.toString())
+                    if (userService.putUser(username.toString(), password.toString(), email.toString()))
+                        mailService.sendMailTo(email.toString(), "欢迎来到KexieBookshelf", "您好，用户$username，您已经开始试图借书了。")
+                }), true
+            )
         } catch (e: Exception) {
             return mutableMapOf(
-                    "result" to "failed",
-                    "reason" to "email invalid"
+                "result" to "failed",
+                "reason" to "email invalid"
             )
         }
         logger.log(true, "signup AIP was called successfully")
         return mutableMapOf(
-                "result" to "success",
-                "reason" to "none"
+            "result" to "success",
+            "reason" to "none"
         )
     }
 

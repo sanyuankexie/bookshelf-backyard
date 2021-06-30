@@ -23,7 +23,7 @@ class MemberService {
      * @param stu_id : String student id
      * @return  exist or null
      */
-    fun someoneWithId(stu_id: String): Boolean {
+    fun anyOneWithId(stu_id: String): Boolean {
         return try {
             memberMapper.selectByPrimaryKey(stu_id) != null
         } catch (e: Exception) {
@@ -37,7 +37,7 @@ class MemberService {
      * @param mail : String the email
      * @return  exist or null
      */
-    fun someoneWithEmail(mail: String): Boolean {
+    fun anyOneWithEmail(mail: String): Boolean {
         return try {
             val example = MemberExample()
             example.createCriteria().andMailEqualTo(mail)
