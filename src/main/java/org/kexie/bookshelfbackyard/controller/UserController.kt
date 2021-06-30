@@ -73,7 +73,7 @@ class UserController {
                             email.toString(),
                             Consumer {
                                 userService.pendingUserQueue.remove(nickname)
-                                if (userService.putUser(nickname, nickname, email.toString()))
+                                if (userService.putUser(nickname, openID, email.toString()))
                                     mailService.sendMailTo(
                                         email.toString(),
                                         "欢迎来到KexieBookshelf",
@@ -157,8 +157,6 @@ class UserController {
             "result" to result.first.toString()
         )
     }
-
-
 
 //    @ResponseBody
 //    @RequestMapping(value = ["/login"], method = arrayOf(RequestMethod.POST))
