@@ -20,7 +20,6 @@ class ObjectStorageService {
 
     fun getOSSPolicy(endpoint: String, accessId: String, accessKey: String): MutableMap<String, String> {
         val ossClient = OSSClient(endpoint, accessId, accessKey)
-        val expireEndTime = System.currentTimeMillis() + 30 * 1000;
         val policyConds = PolicyConditions()
         policyConds.addConditionItem(PolicyConditions.COND_CONTENT_LENGTH_RANGE, 0, 1048576000)
         policyConds.addConditionItem(MatchMode.StartWith, PolicyConditions.COND_KEY, dir)
@@ -36,8 +35,8 @@ class ObjectStorageService {
     companion object {
         const val endpoint = "oss-cn-beijing.aliyuncs.com"
         const val dir = "kexie-bookshelf/"
-
-        protected const val accessId = "LTAI5t9ovqukqPMDsv8fqUFF"
-        protected const val accessKey = "EpCNhFVxQndsNegVmdKcLoYoSDr2QO"
+        val expireEndTime = System.currentTimeMillis() + 30 * 1000
+        const val accessId = "LTAI5t9ovqukqPMDsv8fqUFF"
+        const val accessKey = "EpCNhFVxQndsNegVmdKcLoYoSDr2QO"
     }
 }

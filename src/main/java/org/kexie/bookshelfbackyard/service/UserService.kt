@@ -142,6 +142,10 @@ class UserService {
             Pair(false, "invalid password")
     }
 
+    companion object{
+        val loaded = mutableMapOf<String,User>()
+    }
+
 //    fun User.generateToken(): TokenUtil.VDToken {
 //        return TokenUtil.generate(mutableMapOf(
 //            "name" to name,
