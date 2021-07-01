@@ -3,7 +3,7 @@ package org.kexie.bookshelfbackyard.service
 import org.kexie.bookshelfbackyard.model.Member
 import org.kexie.bookshelfbackyard.model.User
 import org.kexie.bookshelfbackyard.model.UserExample
-import org.kexie.bookshelfbackyard.model.mapper.UserMapper
+import org.kexie.bookshelfbackyard.mapper.UserMapper
 import org.kexie.logUtility.common.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service

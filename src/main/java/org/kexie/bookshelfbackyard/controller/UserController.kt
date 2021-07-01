@@ -5,13 +5,14 @@ import org.kexie.bookshelfbackyard.service.*
 import org.kexie.common.TokenUtil
 import org.kexie.logUtility.common.Logger
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.function.Consumer
 
 
-@RestController
+@Controller
 class UserController {
 
     private val logger = Logger(this)
