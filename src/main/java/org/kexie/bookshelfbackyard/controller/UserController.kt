@@ -151,7 +151,7 @@ class UserController {
              *      result   : String, true if succeed or false when failed
              */
     fun login(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
-        val username = jsonObject["username"].toString()
+        val username = jsonObject["openid_code"].toString()
         val password = wechatOpenAPIService.openIDOf(jsonObject["openid_code"].toString())
         val result = userService.verify(username, password)
         return mutableMapOf(
