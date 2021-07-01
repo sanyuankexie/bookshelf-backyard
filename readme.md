@@ -48,7 +48,7 @@ API：`/register`
 
 API：`/login`
 
-请求方法：GET
+请求方法：POST
 
 支持格式：JSON
 
