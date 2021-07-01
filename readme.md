@@ -108,14 +108,8 @@ API：`/userinfo`
 
 请求示例：
 
-**request**
+**request
 
-```json
-{
-    "openid":"1c054ecb0e947af1661e9f4ae63053c5"
-}
-```
-或
 ```json
 {
     "openid_code":"083Hu7ll2TMK874FU0ol2cPhVk1Hu7ls"
@@ -164,7 +158,7 @@ API：`/borrow`
 ```json
 {
     "bookid":"kexie_bookshelf_00Y8uXG6d2xYFtzsEfpIT84egQMN1zHD",
-    "openid":"1c054ecb0e947af1661e9f4ae63053c5"
+    "openid_code":"083Hu7ll2TMK874FU0ol2cPhVk1Hu7ls"
 }
 ```
 
@@ -204,6 +198,7 @@ API：`/return`
 ```json
 {
     "bookid":"1c054ecb0e947af1661e9f4ae63053c5",
+    "openid_code":"083Hu7ll2TMK874FU0ol2cPhVk1Hu7ls",
 }
 ```
 
@@ -246,6 +241,7 @@ API：`/putbook`
 
 ```json
 {
+    "openid_code":"083Hu7ll2TMK874FU0ol2cPhVk1Hu7ls",
     "bookname":"信息论与编码",
     "authors":"曹雪虹,张宗橙",
     "isbn":"9787302440192",
@@ -289,7 +285,7 @@ API：`/bookshelf`
 
 ```json
 {
-    "openid":"1c054ecb0e947af1661e9f4ae63053c5",
+   "openid_code":"083Hu7ll2TMK874FU0ol2cPhVk1Hu7ls",
 }
 ```
 
@@ -349,7 +345,7 @@ API：`/mybooks`
 
 ```json
 {
-  "openid":"1c054ecb0e947af1661e9f4ae63053c5",
+  "openid_code":"083Hu7ll2TMK874FU0ol2cPhVk1Hu7ls"
 }
 ```
 
@@ -376,3 +372,54 @@ API：`/mybooks`
   },]
 }
 ```
+
+## 请求后端签名
+
+API：`/oss-signature`
+
+支持格式：JSON
+
+请求方法：GET
+
+**请求参数：**
+
+| 参数名称    | 类型   | 必填 | 说明                      |
+| ----------- | ------ | ---- | ------------------------- |
+| openid_code | string | 是   | 用户的身份标识            |
+| bookid      | string | 是   | 书籍的guid                |
+| dir         | srting | 否   | 图片在oss上存储的相对路径 |
+
+**返回参数：**
+
+| 参数名称  | 类型   | 说明                     |
+| --------- | ------ | ------------------------ |
+| result    | bool   | 个人书架信息是否获取成功 |
+| accessId  | srting | 用于标识用户             |
+| policy    | srting | Base64编码               |
+| signature | srting | 签名算法获得的签名       |
+
+
+请求示例：
+
+**request**
+
+```json
+{
+  "openid_code":"083Hu7ll2TMK874FU0ol2cPhVk1Hu7ls",
+  "bookid":"kexie_bookshelf_00Y8uXG6d2xYFtzsEfpIT84egQMN1zHD",
+  "dir":"keixe-bookshelf",
+}
+```
+
+**response**
+
+```json
+{
+  "result":true/false,
+  "accessId":"xxxxxx",
+  "policy":"xxxxxx",
+  "signature":"xxxxxx",
+    
+}
+```
+
