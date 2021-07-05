@@ -149,7 +149,7 @@ class UserService {
 
     val pendingUserQueue = mutableMapOf<String, String>()
 
-    fun verify(username: String, password: String): Pair<Boolean, String> {
+    fun verifyEmail(username: String, password: String): Pair<Boolean, String> {
         if (pendingUserQueue.containsKey(username)) return Pair(false, "email not verified")
         val user = getUserByStuId(username) ?: return Pair(false, "username not found")
         val salt = user.password.salt()

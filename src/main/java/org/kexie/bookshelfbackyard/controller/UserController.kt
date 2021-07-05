@@ -2,7 +2,6 @@ package org.kexie.bookshelfbackyard.controller
 
 import com.alibaba.fastjson.JSONObject
 import org.kexie.bookshelfbackyard.service.*
-import org.kexie.common.TokenUtil
 import org.kexie.logUtility.common.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
@@ -151,12 +150,46 @@ class UserController {
              *      result   : String, true if succeed or false when failed
              */
     fun login(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
+        val openid_code = jsonObject["openid_code"].toString()
         val username = jsonObject["username"].toString()
-        val password = wechatOpenAPIService.openIDOf(jsonObject["openid_code"].toString())
-        val result = userService.verify(username, password)
+        val password = wechatOpenAPIService.openIDOf(openid_code)
+        val result = userService.verifyEmail(username, password)
+        if (result.first)
+            openidCode2User[openid_code] = username
         return mutableMapOf(
             "result" to result.first.toString()
         )
+    }
+
+    private val openidCode2User = mutableMapOf<String, String>()
+
+    @ResponseBody
+    @RequestMapping(value = ["/userinfo"], method = arrayOf(RequestMethod.POST))
+            /**
+             * @author VisualDust
+             * @since 0.0
+             *      Api located at bookshelf-backyard/userinfo
+             * @param jsonObject contains   :
+             *      openid_code : openid_code
+             * @return a map contains   :
+             *      result   : user's information
+             */
+    fun informationOf(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
+        val openidCode = jsonObject["openid_code"].toString()
+        return when (openidCode2User.containsKey(openidCode)) {
+            true -> {
+                val user = userService.getUserByNickname(openidCode2User[openidCode]!!)!!
+                mutableMapOf(
+                    "result" to "false",
+                    "nickname" to user.nickname,
+                    "student_id" to user.stuId
+                )
+            }
+            else -> mutableMapOf(
+                "result" to "false",
+                "reason" to "user not logged in yet."
+            )
+        }
     }
 
 //    @ResponseBody

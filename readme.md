@@ -215,6 +215,53 @@ API：`/return`
 }
 ```
 
+## 根据guid获取书籍信息
+
+API：`/bookinfo`
+
+支持格式：JSON
+
+请求方法：GET
+
+**请求参数**
+
+| 参数名称   | 类型   | 必填 | 说明       |
+| bookid         | string | 是   | 书籍的guid |
+
+**返回参数**
+
+| 参数名称   | 类型   | 必填 | 说明       |
+| ---------- | ------ | ---- | ---------- |
+| openid_code | string | 是 | 用户的openid_code |
+| bookname   | string | 是   | 书籍名称   |
+| authors | string | 是   | 作者姓名   |
+| isbn   | string    | 是   | ISBN号     |
+| introduction   | string | 否   | 书籍简介   |
+| bookid         | string | 是   | 书籍的guid |
+
+请求示例：
+
+**request**
+
+```json
+{
+"bookid":"xxxxxxxxxxxxx"
+}
+```
+
+**response**
+
+```json
+{
+    "bookid":"bookid1",
+    "name":"name1",
+    "author":"author1",
+    "introduction":"intro1",
+    "availiable_cnt":0
+  }
+```
+
+
 ## 提交书籍信息
 
 API：`/putbook`
@@ -222,6 +269,9 @@ API：`/putbook`
 支持格式：JSON
 
 请求方法：POST
+
+| 参数名称   | 类型   | 必填 | 说明       |
+| bookid         | string | 是   | 书籍的guid |
 
 **请求参数：**
 
