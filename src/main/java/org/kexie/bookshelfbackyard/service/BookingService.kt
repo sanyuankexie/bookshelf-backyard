@@ -58,7 +58,7 @@ class BookingService {
      * @throws NullPointerException if there is no such book
      * @return succeed or not
      */
-    fun User.borrow(guid: String): Boolean {
+    private fun User.borrow(guid: String): Boolean {
         return if (bookWithGUID(guid)!!.borrowerStuId != null) {
             logger.log("User${this.nickname} tried to borrow the book but failed.")
             false
@@ -89,7 +89,7 @@ class BookingService {
      * @throws NullPointerException if there is no such book
      * @return succeed or not
      *///todo
-    fun User.remand(guid: String): Boolean {
+    private fun User.remand(guid: String): Boolean {
         return if (bookWithGUID(guid)!!.borrowerStuId == null) {
             logger.log("User${this.nickname} tried to remand the book but failed. No one borrowed the book before.")
             false

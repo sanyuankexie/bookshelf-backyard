@@ -81,5 +81,4 @@ class BookingController {
             mutableMapOf("errorcode" to errorcode.toString())
         }
     }
-
 }
