@@ -155,13 +155,13 @@ class UserController {
         val password = wechatOpenAPIService.openIDOf(openid_code)
         val result = userService.verifyEmail(username, password)
         if (result.first)
-            openidCode2User[openid_code] = username
+            openIDCode2User[openid_code] = username
         return mutableMapOf(
             "result" to result.first.toString()
         )
     }
 
-    private val openidCode2User = mutableMapOf<String, String>()
+    val openIDCode2User = mutableMapOf<String, String>()
 
     @ResponseBody
     @RequestMapping(value = ["/userinfo"], method = arrayOf(RequestMethod.POST))
@@ -176,9 +176,9 @@ class UserController {
              */
     fun informationOf(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
         val openidCode = jsonObject["openid_code"].toString()
-        return when (openidCode2User.containsKey(openidCode)) {
+        return when (openIDCode2User.containsKey(openidCode)) {
             true -> {
-                val user = userService.getUserByNickname(openidCode2User[openidCode]!!)!!
+                val user = userService.getUserByNickname(openIDCode2User[openidCode]!!)!!
                 mutableMapOf(
                     "result" to "false",
                     "nickname" to user.nickname,
