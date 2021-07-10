@@ -160,6 +160,16 @@ class UserService {
             Pair(false, "invalid password")
     }
 
+    fun verify(nickname: String, password: String): Pair<Boolean, String> {
+        if (pendingUserQueue.containsKey(nickname)) return Pair(false, "email not verified")
+        val user = getUserByNickname(nickname) ?: return Pair(false, "username not found")
+        val salt = user.password.salt()
+        val passport = user.password.escapeSalt()
+        return if (passport == password.encrypt(salt))
+            Pair(true, "success")
+        else
+            Pair(false, "invalid password")
+    }
 //    fun User.generateToken(): TokenUtil.VDToken {
 //        return TokenUtil.generate(mutableMapOf(
 //            "name" to name,

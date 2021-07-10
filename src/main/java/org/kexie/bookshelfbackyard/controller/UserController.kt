@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.function.Consumer
+import kotlin.math.log
 
 
 @Controller
@@ -152,19 +153,29 @@ class UserController {
     fun login(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
         val openid_code = jsonObject["openid_code"].toString()
         val username = jsonObject["username"].toString()
+        logger.log("$username tried to login with openIDCode $openid_code")
         val password = wechatOpenAPIService.openIDOf(openid_code)
-        val result = userService.verifyEmail(username, password)
-        if (result.first)
-            openIDCode2User[openid_code] = username
-        return mutableMapOf(
-            "result" to result.first.toString()
-        )
+        val result = userService.verify(username, password)
+        return when (result.first) {
+            true -> {
+                val user = userService.getUserByNickname(username)
+                openIDCode2User[openid_code] = username
+                logger.log(true, "login AIP was called successfully")
+                mutableMapOf(
+                    "result" to "success",
+                )
+            }
+            else -> mutableMapOf(
+                "result" to "failed",
+                "reason" to result.second
+            )
+        }
     }
 
     val openIDCode2User = mutableMapOf<String, String>()
 
     @ResponseBody
-    @RequestMapping(value = ["/userinfo"], method = arrayOf(RequestMethod.POST))
+    @RequestMapping(value = ["/userinfo"], method = arrayOf(RequestMethod.GET))
             /**
              * @author VisualDust
              * @since 0.0

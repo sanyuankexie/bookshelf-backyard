@@ -49,7 +49,7 @@
                                 Hello, <span style="color: #0083d4;font-family: bold" th:text="${userName}"></span>
                             </div>
                             <div style="font-size:20px;line-height:20px;">&nbsp;</div>
-                            <p th:utext="${#strings.replace( #strings.escapeXml(content),T(java.lang.System).getProperty('line.separator'),'&lt;br /&gt;')}"
+                            <p th:utext="${content}"
                                style="font-family:Helvetica,Arial,sans-serif;font-size:15px;color:#455463;line-height:20px;margin: 0 0 1em 0;"></p>
                     </tr>
                     <tr>

@@ -6,8 +6,7 @@ import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Service
 import org.thymeleaf.TemplateEngine
-import org.thymeleaf.context.*
-import java.lang.Exception
+import org.thymeleaf.context.Context
 
 @Service
 class MailService {
@@ -32,6 +31,7 @@ class MailService {
     fun sendMailTo(mailAddr: String, title: String, content: String) = sendMailTo(mailAddr, "尊敬的用户", title, content)
 
     fun sendMailTo(mailAddr: String, name: String, title: String, content: String) {
+        content.replace("\n", System.getProperty("line.separator"))
         val context = Context()
         context.setVariable("userName", name)
         context.setVariable("content", content)
