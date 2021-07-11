@@ -1,9 +1,9 @@
 package org.kexie.bookshelfbackyard.service
 
+import org.kexie.bookshelfbackyard.mapper.UserMapper
 import org.kexie.bookshelfbackyard.model.Member
 import org.kexie.bookshelfbackyard.model.User
 import org.kexie.bookshelfbackyard.model.UserExample
-import org.kexie.bookshelfbackyard.mapper.UserMapper
 import org.kexie.logUtility.common.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -147,21 +147,9 @@ class UserService {
         return this.split("|")[0]
     }
 
-    val pendingUserQueue = mutableMapOf<String, String>()
-
-    fun verifyEmail(username: String, password: String): Pair<Boolean, String> {
-        if (pendingUserQueue.containsKey(username)) return Pair(false, "email not verified")
-        val user = getUserByStuId(username) ?: return Pair(false, "username not found")
-        val salt = user.password.salt()
-        val passport = user.password.escapeSalt()
-        return if (passport == password.encrypt(salt))
-            Pair(true, "success")
-        else
-            Pair(false, "invalid password")
-    }
 
     fun verify(nickname: String, password: String): Pair<Boolean, String> {
-        if (pendingUserQueue.containsKey(nickname)) return Pair(false, "email not verified")
+        if (vcodeService.queue.containsKey(nickname)) return Pair(false, "email not verified")
         val user = getUserByNickname(nickname) ?: return Pair(false, "username not found")
         val salt = user.password.salt()
         val passport = user.password.escapeSalt()
@@ -170,10 +158,4 @@ class UserService {
         else
             Pair(false, "invalid password")
     }
-//    fun User.generateToken(): TokenUtil.VDToken {
-//        return TokenUtil.generate(mutableMapOf(
-//            "name" to name,
-//            "time" to Timestamp.valueOf(LocalDateTime.now()).time.toString()
-//        ))
-//    }
 }

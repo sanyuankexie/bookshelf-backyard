@@ -58,14 +58,14 @@ class VerificationCodeService {
      * @param sendEmail default true, weather or not to send a verification code to the target mail
      */
     fun putVerification(verification: Verification<Boolean>, sendEmail: Boolean = true): String {
-        var code = generate()
+        val code = generate()
         try {
             mailService.sendMailTo(verification.mail, verification.username, "验证码", "${verification.description} : ${code} , 请尽快验证以免失效")
         } catch (e: Exception) {
             logger.log(e)
             throw e
         }
-        queue.put(code, verification)
+        queue[code] = verification
         return code
     }
 

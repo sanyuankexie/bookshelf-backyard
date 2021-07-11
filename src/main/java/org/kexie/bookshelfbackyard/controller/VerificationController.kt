@@ -47,28 +47,28 @@ class VerificationController {
         }
     }
 
-    @ResponseBody
-    @RequestMapping(value = ["/requestvcode"], method = arrayOf(RequestMethod.POST))
-            /**
-             * @author VisualDust
-             *  @since 0.0
-             *      Api located at analysthugo/requestvcode
-             *  @param jsonObject contains :
-             *      description : String, describes why we send this code
-             *      mail        : String, who well receive this code
-             *  @return the result should be "success"
-             */
-    fun requestCode(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
-        val username = jsonObject["username"]
-        val mail = jsonObject["mail"]
-        val description = jsonObject["description"]
-        verificationService.putVerification(
-            Verification(
-                username.toString(),
-                description.toString(),
-                mail.toString(),
-                Consumer { })
-        )
-        return mutableMapOf("result" to "success")
-    }
+//    @ResponseBody
+//    @RequestMapping(value = ["/requestvcode"], method = arrayOf(RequestMethod.POST))
+//            /**
+//             * @author VisualDust
+//             *  @since 0.0
+//             *      Api located at analysthugo/requestvcode
+//             *  @param jsonObject contains :
+//             *      description : String, describes why we send this code
+//             *      mail        : String, who well receive this code
+//             *  @return the result should be "success"
+//             */
+//    fun requestCode(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
+//        val username = jsonObject["username"]
+//        val mail = jsonObject["mail"]
+//        val description = jsonObject["description"]
+//        verificationService.putVerification(
+//            Verification(
+//                username.toString(),
+//                description.toString(),
+//                mail.toString(),
+//                Consumer { })
+//        )
+//        return mutableMapOf("result" to "success")
+//    }
 }
