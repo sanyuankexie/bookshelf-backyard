@@ -5,11 +5,12 @@ import org.kexie.bookshelfbackyard.service.*
 import org.kexie.logUtility.common.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.ResponseBody
 import java.math.BigInteger
 import java.security.MessageDigest
-import java.util.function.Consumer
-import kotlin.math.log
 
 
 @Controller
@@ -44,7 +45,7 @@ class UserController {
 
     @ResponseBody
     @RequestMapping(value = ["/oss-signature"], method = arrayOf(RequestMethod.POST))
-    fun getOSSSagnature(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
+    fun getOSSSignature(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
         return objectStorageService.getOSSPolicy()
     }
 
@@ -56,24 +57,18 @@ class UserController {
         val openIDCode = jsonObject["openid_code"].toString()
         val member = memberService.getMemberByStuID(stuID)
         return when {
-            userService.anyoneWithStuID(stuID) -> {
-                mutableMapOf("errorcode" to "1")
-            }
-            userService.anyoneWithNickname(nickname) -> {
-                mutableMapOf("errorcode" to "3")
-            }
+            userService.anyoneWithStuID(stuID) -> mutableMapOf("errorcode" to "1")
+            userService.anyoneWithNickname(nickname) -> mutableMapOf("errorcode" to "3")
             else -> {
                 val openID = wechatOpenAPIService.openIDOf(openIDCode)
                 try {
                     val email = member.mail
-                    userService.pendingUserQueue[nickname] = email
                     verificationService.putVerification(
                         Verification(
                             nickname,
                             "用户注册KexieBookshelf的验证码",
                             email.toString(),
-                            Consumer {
-                                userService.pendingUserQueue.remove(nickname)
+                            {
                                 if (userService.putUser(nickname, openID, email.toString()))
                                     mailService.sendMailTo(
                                         email.toString(),
