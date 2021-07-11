@@ -84,7 +84,7 @@ class Monitor {
                 Thread.sleep(1000)
                 var platformProp = ""
                 for (prop in Logger.getPlatformProperties())
-                    platformProp += "${prop.key}=${prop.value}; "
+                    platformProp += "${prop.key}:${prop.value}; "
                 for (mail in targetMails)
                     mailService.sendMailTo(
                         mail.value, "尊敬的管理员${mail.key}",

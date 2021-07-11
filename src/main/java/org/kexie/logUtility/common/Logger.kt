@@ -409,8 +409,7 @@ class Logger {
             val propMap = mutableMapOf<String, String>(
                     "os.name" to "操作系统名称",
                     "os.version" to "操作系统版本",
-                    "java.version" to "JVM版本",
-                    "java.home" to "Java安装路径"
+                    "java.version" to "JVM版本"
             )
             properties["ip地址"] = InetAddress.getLocalHost().hostAddress.toString()
             for (kv in propMap)
