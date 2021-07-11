@@ -44,22 +44,22 @@ class UserController {
     }
 
     @ResponseBody
-    @RequestMapping(value = ["/oss-signature"], method = arrayOf(RequestMethod.POST))
-    fun getOSSSignature(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
+    @RequestMapping(value = ["/oss-signature"], method = [RequestMethod.GET])
+    fun getOSSSignature(): MutableMap<String, String> {
         return objectStorageService.getOSSPolicy()
     }
 
     @ResponseBody
-    @RequestMapping(value = ["/register"], method = arrayOf(RequestMethod.POST))
+    @RequestMapping(value = ["/register"], method = [RequestMethod.POST])
     fun register(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
-        val nickname = jsonObject["nickname"].toString()
         val stuID = jsonObject["student_id"].toString()
         val openIDCode = jsonObject["openid_code"].toString()
         val member = memberService.getMemberByStuID(stuID)
         return when {
             userService.anyoneWithStuID(stuID) -> mutableMapOf("errorcode" to "1")
-            userService.anyoneWithNickname(nickname) -> mutableMapOf("errorcode" to "3")
+            !memberService.anyoneWithStuID(stuID) -> mutableMapOf("errorcode" to "2")
             else -> {
+                val nickname = memberService.getMemberByStuID(stuID).name
                 val openID = wechatOpenAPIService.openIDOf(openIDCode)
                 try {
                     val email = member.mail
@@ -134,7 +134,7 @@ class UserController {
 
 
     @ResponseBody
-    @RequestMapping(value = ["/login"], method = arrayOf(RequestMethod.POST))
+    @RequestMapping(value = ["/login"], method = [RequestMethod.POST])
             /**
              * @author VisualDust
              * @since 0.0
@@ -147,30 +147,36 @@ class UserController {
              */
     fun login(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
         val openid_code = jsonObject["openid_code"].toString()
-        val username = jsonObject["username"].toString()
-        logger.log("$username tried to login with openIDCode $openid_code")
         val password = wechatOpenAPIService.openIDOf(openid_code)
-        val result = userService.verify(username, password)
-        return when (result.first) {
-            true -> {
-                val user = userService.getUserByNickname(username)
-                openIDCode2User[openid_code] = username
-                logger.log(true, "login AIP was called successfully")
-                mutableMapOf(
-                    "result" to "success",
-                )
-            }
-            else -> mutableMapOf(
+        val stuID = jsonObject["student_id"].toString()
+        logger.log("$stuID tried to login with openIDCode $openid_code")
+        val user = userService.getUserByStuId(stuID)
+        return when (user) {
+            null -> mutableMapOf(
                 "result" to "failed",
-                "reason" to result.second
+                "reason" to "user not exist"
             )
+            else -> {
+                openIDCode2User[openid_code] = user.uid
+                val result = userService.verify(user.nickname, password)
+                logger.log(true, "login AIP was called successfully")
+                when (result.first) {
+                    true -> mutableMapOf(
+                        "result" to "success",
+                    )
+                    false -> mutableMapOf(
+                        "result" to "failed",
+                        "reason" to "password error"
+                    )
+                }
+            }
         }
     }
 
-    val openIDCode2User = mutableMapOf<String, String>()
+    val openIDCode2User = mutableMapOf<String, Long>()
 
     @ResponseBody
-    @RequestMapping(value = ["/userinfo"], method = arrayOf(RequestMethod.GET))
+    @RequestMapping(value = ["/userinfo"], method = [RequestMethod.GET])
             /**
              * @author VisualDust
              * @since 0.0
@@ -184,7 +190,7 @@ class UserController {
         val openidCode = jsonObject["openid_code"].toString()
         return when (openIDCode2User.containsKey(openidCode)) {
             true -> {
-                val user = userService.getUserByNickname(openIDCode2User[openidCode]!!)!!
+                val user = userService.getUserByUserID(openIDCode2User[openidCode]!!)!!
                 mutableMapOf(
                     "result" to "false",
                     "nickname" to user.nickname,
