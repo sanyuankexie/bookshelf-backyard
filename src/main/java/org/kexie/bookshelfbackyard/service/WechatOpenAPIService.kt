@@ -31,10 +31,14 @@ class WechatOpenAPIService {
             .url(url)
             .get()
             .build()
-        val result = client.newCall(request).execute()
-        this.logger.log(result.body!!.string())
-        codeVerified[openIDCode] = result.body.toString()
-        return result.body.toString()
+        val response = client.newCall(request).execute()
+        val resultString = response.body!!.string()
+        codeVerified[openIDCode] = resultString
+        val startIndex = resultString.indexOf("\"openid\":\"") + "\"openid\":\"".length
+        return resultString.substring(
+            startIndex,
+            resultString.indexOf("\"}", startIndex)
+        )
     }
 
     val codeVerified = mutableMapOf<String, String>()
@@ -44,5 +48,4 @@ class WechatOpenAPIService {
         val appsecret = "b1cb5c7c65ae67ac55981a0fe13561a1"
         val grantType = "authorization_code"
     }
-
 }

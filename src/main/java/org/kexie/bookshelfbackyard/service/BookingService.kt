@@ -7,7 +7,6 @@ import org.kexie.bookshelfbackyard.model.User
 import org.kexie.logUtility.common.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.lang.Exception
 
 @Service
 class BookingService {
@@ -20,6 +19,7 @@ class BookingService {
     lateinit var userService: UserService
 
     init {
+        updateLibrary()
         logger.log(true, "Controller ${javaClass.simpleName} was successfully initialized")
     }
 
@@ -58,27 +58,22 @@ class BookingService {
      * @throws NullPointerException if there is no such book
      * @return succeed or not
      */
-    private fun User.borrow(guid: String): Boolean {
-        return if (bookWithGUID(guid)!!.borrowerStuId != null) {
+    private fun User.borrow(guid: String) =
+        if (bookWithGUID(guid)!!.borrowerStuId != null) {
             logger.log("User${this.nickname} tried to borrow the book but failed.")
-            false
+            2 // someone has already borrowed the book
         } else {
             val book = bookWithGUID(guid)
             book!!.borrowerStuId = this.stuId
             bookMapper.updateByPrimaryKey(book)
             logger.log(true, "User${this.nickname} borrowed book called ${book.name}(${book.guid})")
-            true
-        }
-    }
+            0 // borrow procedure succeed
+        }.also { updateLibrary() }
 
-    fun doBorrow(stuID: String, guid: String): Boolean {
-        return if (userService.getUserByStuId(stuID) == null) {
-            false
-        } else if (bookWithGUID(guid) == null) {
-            false
-        } else {
-            userService.getUserByStuId(stuID)!!.borrow(guid)
-        }
+    fun doBorrow(stuID: String, guid: String) = when {
+        userService.getUserByStuId(stuID) == null -> 3
+        bookWithGUID(guid) == null -> 1
+        else -> userService.getUserByStuId(stuID)!!.borrow(guid)
     }
 
     /**
@@ -88,32 +83,40 @@ class BookingService {
      * @param guid: String, the guid of the book
      * @throws NullPointerException if there is no such book
      * @return succeed or not
-     *///todo
-    private fun User.remand(guid: String): Boolean {
-        return if (bookWithGUID(guid)!!.borrowerStuId == null) {
+     */
+    private fun User.remand(guid: String) =
+        if (bookWithGUID(guid)!!.borrowerStuId == null) {
             logger.log("User${this.nickname} tried to remand the book but failed. No one borrowed the book before.")
-            false
+            2
         } else {
             val book = bookWithGUID(guid)
             if (book!!.borrowerStuId == this.stuId) {
                 book.borrowerStuId = null
                 bookMapper.updateByPrimaryKey(book)
                 logger.log(true, "User${this.nickname} remanded the book called ${book.name}(${book.guid})")
-                true
+                0
             } else {
                 logger.log("User${this.nickname} tried to remand the book but failed. The user has not borrowed the book.")
-                false
+                2
             }
-        }
+        }.also { updateLibrary() }
+
+    fun doRemand(stuID: String, guid: String) = when {
+        userService.getUserByStuId(stuID) == null -> 3
+        bookWithGUID(guid) == null -> 1
+        else -> userService.getUserByStuId(stuID)!!.remand(guid)
     }
 
-    fun doRemand(stuID: String, guid: String): Boolean {
-        return if (userService.getUserByStuId(stuID) == null) {
-            false
-        } else if (bookWithGUID(guid) == null) {
-            false
+    fun insertBook(guid: String, isbn: String, name: String, author: String) =
+        if (GUID2Book[guid] == null) {
+            val book = Book()
+            book.guid = guid
+            book.isbn = isbn
+            book.name = name
+            book.author = author
+            bookMapper.insert(book)
+            0
         } else {
-            userService.getUserByStuId(stuID)!!.remand(guid)
-        }
-    }
+            1 //book already exists
+        }.also { updateLibrary() }
 }

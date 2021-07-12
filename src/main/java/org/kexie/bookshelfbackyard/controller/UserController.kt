@@ -43,6 +43,10 @@ class UserController {
         logger.log(true, "Controller ${javaClass.simpleName} was successfully initialized")
     }
 
+    companion object {
+        var openID2User = mutableMapOf<String, Long>()
+    }
+
     @ResponseBody
     @RequestMapping(value = ["/oss-signature"], method = [RequestMethod.GET])
     fun getOSSSignature(): MutableMap<String, String> {
@@ -65,11 +69,11 @@ class UserController {
                     val email = member.mail
                     verificationService.putVerification(
                         Verification(
-                            nickname,
+                            stuID,
                             "用户注册KexieBookshelf的验证码",
                             email.toString(),
                             {
-                                if (userService.putUser(nickname, openID, email.toString()))
+                                if (userService.putUser(nickname, stuID, openID, email.toString()))
                                     mailService.sendMailTo(
                                         email.toString(),
                                         "欢迎来到KexieBookshelf",
@@ -146,20 +150,19 @@ class UserController {
              *      result   : String, true if succeed or false when failed
              */
     fun login(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
-        val openid_code = jsonObject["openid_code"].toString()
-        val password = wechatOpenAPIService.openIDOf(openid_code)
+        val openIDCode = jsonObject["openid_code"].toString()
+        val openID = wechatOpenAPIService.openIDOf(openIDCode)
         val stuID = jsonObject["student_id"].toString()
-        logger.log("$stuID tried to login with openIDCode $openid_code")
-        val user = userService.getUserByStuId(stuID)
-        return when (user) {
+//        logger.log("$stuID tried to login with openIDCode $openid_code")
+        return when (val user = userService.getUserByStuId(stuID)) {
             null -> mutableMapOf(
                 "result" to "failed",
                 "reason" to "user not exist"
             )
             else -> {
-                openIDCode2User[openid_code] = user.uid
-                val result = userService.verify(user.nickname, password)
-                logger.log(true, "login AIP was called successfully")
+                openID2User[openID] = user.uid
+                val result = userService.verify(user.nickname, password = openID)
+                logger.log(true, "${user.nickname}(${user.uid}) logged in. AIP was called successfully")
                 when (result.first) {
                     true -> mutableMapOf(
                         "result" to "success",
@@ -173,10 +176,8 @@ class UserController {
         }
     }
 
-    val openIDCode2User = mutableMapOf<String, Long>()
-
     @ResponseBody
-    @RequestMapping(value = ["/userinfo"], method = [RequestMethod.GET])
+    @RequestMapping(value = ["/userinfo"], method = [RequestMethod.POST])
             /**
              * @author VisualDust
              * @since 0.0
@@ -186,25 +187,27 @@ class UserController {
              * @return a map contains   :
              *      result   : user's information
              */
-    fun informationOf(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
+    fun userinfo(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
         val openidCode = jsonObject["openid_code"].toString()
-        return when (openIDCode2User.containsKey(openidCode)) {
+        val openID = wechatOpenAPIService.openIDOf(openidCode)
+        return when (openID2User.containsKey(openID)) {
             true -> {
-                val user = userService.getUserByUserID(openIDCode2User[openidCode]!!)!!
+                val user = userService.getUserByUserID(openID2User[openID]!!)!!
+                logger.debug("User ${user.nickname}(${user.uid}) called the userinfo API.")
                 mutableMapOf(
-                    "result" to "false",
+                    "result" to "success",
                     "nickname" to user.nickname,
                     "student_id" to user.stuId
                 )
             }
             else -> mutableMapOf(
-                "result" to "false",
+                "result" to "failed",
                 "reason" to "user not logged in yet."
             )
         }
     }
 
-//    @ResponseBody
+    //    @ResponseBody
 //    @RequestMapping(value = ["/login"], method = arrayOf(RequestMethod.POST))
 //            /**
 //             * @author VisualDust

@@ -36,9 +36,9 @@ class VerificationController {
              */
     fun verify(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
         val code = jsonObject["code"]
-        val username = jsonObject["nickname"]
-        val result = verificationService.verify(username.toString(), code.toString())
-        logger.debug(true, "verify AIP was called by $username, with the result of $result")
+        val stuID = jsonObject["student_id"]
+        val result = verificationService.verify(stuID.toString(), code.toString())
+        logger.debug(true, "verify AIP was called by $stuID, with the result of $result")
         return when (result) {
             true -> mutableMapOf("result" to "success")
             false -> mutableMapOf("result" to "failed")

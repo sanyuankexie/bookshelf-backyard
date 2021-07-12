@@ -116,12 +116,13 @@ class UserService {
      * @param password : String
      * @param email : String , user's email
      */
-    fun putUser(nickname: String, password: String, email: String): Boolean {
+    fun putUser(nickname: String, stuID: String, password: String, email: String): Boolean {
         val user = User()
         user.nickname = nickname
         user.mail = email
         user.password = password.pendSalt()
         user.type = 0
+        user.stuId = stuID
         logger.debug("Trying to insert user : $nickname to table")
         try {
             if (null == getUserByStuId(nickname))
