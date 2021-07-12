@@ -1,7 +1,6 @@
 package org.kexie.bookshelfbackyard.controller
 
 import com.alibaba.fastjson.JSONObject
-import org.kexie.bookshelfbackyard.service.Verification
 import org.kexie.bookshelfbackyard.service.VerificationCodeService
 import org.kexie.logUtility.common.Logger
 import org.springframework.beans.factory.annotation.Autowired
@@ -10,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.ResponseBody
-import java.util.function.Consumer
 
 @Controller
 class VerificationController {
@@ -34,13 +32,13 @@ class VerificationController {
              *      code : String
              *      username : String
              *      token : String, can be null here
-             * @return result : String, "success" or "faild"
+             * @return result : String, "success" or "failed"
              */
     fun verify(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
         val code = jsonObject["code"]
-        val username = jsonObject["username"]
+        val username = jsonObject["nickname"]
         val result = verificationService.verify(username.toString(), code.toString())
-        logger.log(true, "verify AIP was called")
+        logger.debug(true, "verify AIP was called by $username, with the result of $result")
         return when (result) {
             true -> mutableMapOf("result" to "success")
             false -> mutableMapOf("result" to "failed")

@@ -59,12 +59,18 @@ class VerificationCodeService {
      */
     fun putVerification(verification: Verification<Boolean>, sendEmail: Boolean = true): String {
         val code = generate()
-        try {
-            mailService.sendMailTo(verification.mail, verification.username, "验证码", "${verification.description} : ${code} , 请尽快验证以免失效")
-        } catch (e: Exception) {
-            logger.log(e)
-            throw e
-        }
+        if (sendEmail)
+            try {
+                mailService.sendMailTo(
+                    verification.mail,
+                    verification.username,
+                    "验证码",
+                    "${verification.description} : ${code} , 请尽快验证以免失效"
+                )
+            } catch (e: Exception) {
+                logger.log(e)
+                throw e
+            }
         queue[code] = verification
         return code
     }
@@ -97,4 +103,10 @@ class VerificationCodeService {
     var queue = mutableMapOf<String, Verification<Boolean>>()
 }
 
-class Verification<T>(var username: String, var description: String, var mail: String, var consumer: Consumer<T>, var timeRem: Int = 5) {}
+class Verification<T>(
+    var username: String,
+    var description: String,
+    var mail: String,
+    var consumer: Consumer<T>,
+    var timeRem: Int = 5
+)

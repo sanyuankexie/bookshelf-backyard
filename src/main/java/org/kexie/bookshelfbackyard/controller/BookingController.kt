@@ -48,8 +48,8 @@ class BookingController {
     fun borrow(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
         val bookGUID = jsonObject["bookid"].toString()
         val openIDCode = jsonObject["openid_code"].toString()
-        val nickname = userController.openIDCode2User[openIDCode]
-        val user = userService.getUserByNickname(nickname!!)
+        val uid = userController.openIDCode2User[openIDCode]
+        val user = userService.getUserByUserID(uid!!)
         return if (user == null) {
             mutableMapOf("errorcode" to "3")
         } else {
@@ -72,8 +72,8 @@ class BookingController {
     fun remand(@RequestBody jsonObject: JSONObject): MutableMap<String, String> {
         val bookGUID = jsonObject["bookid"].toString()
         val openIDCode = jsonObject["openid_code"].toString()
-        val nickname = userController.openIDCode2User[openIDCode]
-        val user = userService.getUserByNickname(nickname!!)
+        val stuID = userController.openIDCode2User[openIDCode]
+        val user = userService.getUserByUserID(stuID!!)
         return if (user == null) {
             mutableMapOf("errorcode" to "3")
         } else {

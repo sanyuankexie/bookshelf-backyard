@@ -6,7 +6,9 @@ import java.io.FileOutputStream
 import java.io.OutputStream
 import java.net.InetAddress
 import java.time.LocalDateTime
+import java.util.*
 import java.util.function.Consumer
+import kotlin.collections.HashMap
 import kotlin.random.Random
 import org.kexie.logUtility.common.AttributedHtmlStr as AHS
 import org.kexie.logUtility.common.AttributedHtmlStr.Companion.BuiltInColors as BIColor
@@ -132,8 +134,10 @@ class Logger {
     fun debug(succeed: Boolean, message: String) = debug(succeed, message, 0)
     fun debug(succeed: Boolean, message: String, channel: Int) {
         if (EnableDebugging) logFormatted(
-                "%dbg%$LogSeparator%${succeed.toString()
-                        .toLowerCase()}%$LogSeparator%tif%$LogSeparator%gen%$LogSeparator${message}\n",
+                "%dbg%$LogSeparator%${
+                    succeed.toString()
+                        .lowercase(Locale.getDefault())
+                }%$LogSeparator%tif%$LogSeparator%gen%$LogSeparator${message}\n",
                 channel
         )
     }
@@ -172,7 +176,7 @@ class Logger {
             for (resolver in staticEventResolvers.getValue(channel))
                 resolver.accept(RelatedEvent(generator, message))
         logFormatted(
-                "%${succeed.toString().toLowerCase()}%$LogSeparator%tif%$LogSeparator%gen%$LogSeparator${message}\n",
+                "%${succeed.toString().lowercase(Locale.getDefault())}%$LogSeparator%tif%$LogSeparator%gen%$LogSeparator${message}\n",
                 channel
         )
     }
