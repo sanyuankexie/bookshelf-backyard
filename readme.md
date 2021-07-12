@@ -42,8 +42,6 @@ API：`/register`
 }
 ```
 
-
-
 ## 登录（获取openid）
 
 API：`/login`
@@ -78,10 +76,9 @@ API：`/login`
 
 ```json
 {
-  "result":true/false
+  "result":success/failed,
 }
 ```
-
 
 ## 身份信息
 
@@ -120,14 +117,11 @@ API：`/userinfo`
 
 ```json
 {
-    "result":true/false,
+    "result":success/failed,
     "nickname":"李四",
     "student_id":"1900300000"
 }
 ```
-
-
-
 
 ## 借书
 
@@ -220,8 +214,9 @@ API：`/bookinfo`
 
 **请求参数**
 
-| 参数名称   | 类型   | 必填 | 说明       |
-| bookid         | string | 是   | 书籍的guid |
+| 参数名称 | 类型   | 必填 | 说明       |
+| -------- | ------ | ---- | ---------- |
+| bookid   | string | 是   | 书籍的guid |
 
 **返回参数**
 
@@ -240,7 +235,7 @@ API：`/bookinfo`
 
 ```json
 {
-"bookid":"xxxxxxxxxxxxx"
+	"bookid":"xxxxxxxxxxxxx"
 }
 ```
 
@@ -264,9 +259,6 @@ API：`/putbook`
 支持格式：JSON
 
 请求方法：POST
-
-| 参数名称   | 类型   | 必填 | 说明       |
-| bookid         | string | 是   | 书籍的guid |
 
 **请求参数：**
 
@@ -304,7 +296,7 @@ API：`/putbook`
 
 ```json
 {
-    "result":true/false,
+    "result":success/failed,
 }
 ```
 
@@ -343,7 +335,7 @@ API：`/bookshelf`
 
 ```json
 {
-  "result":true/false,
+  "result":success/failed,
   "book_list":[{
     "bookid":"bookid1",
     "name":"name1",
@@ -403,7 +395,7 @@ API：`/mybooks`
 
 ```json
 {
-  "result":true/false,
+  "result":success/failed,
   "mybook_list":[{
     "bookid":"bookid1",
     "name":"name1",
@@ -465,11 +457,52 @@ API：`/oss-signature`
 
 ```json
 {
-  "result":true/false,
+  "result":success/failed,
   "accessId":"xxxxxx",
   "policy":"xxxxxx",
   "signature":"xxxxxx",
     
+}
+```
+
+## 注册验证
+
+API：`/verify`
+
+支持格式：JSON
+
+请求方法：POST
+
+**请求参数：**
+
+| 参数名称 | 类型   | 必填 | 说明       |
+| -------- | ------ | ---- | ---------- |
+| nickname | string | 是   | 用户的昵称 |
+| verify   | int    | 是   | 验证码     |
+
+**返回参数：**
+
+| 参数名称 | 类型 | 说明         |
+| -------- | ---- | ------------ |
+| result   | bool | 注册是否成功 |
+
+
+请求示例：
+
+**request**
+
+```json
+{
+  "nickname":"MXBG",
+  "verify":"123456",
+}
+```
+
+**response**
+
+```json
+{
+  "result":success/failed,
 }
 ```
 
