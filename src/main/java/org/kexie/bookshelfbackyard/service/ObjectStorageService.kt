@@ -23,20 +23,21 @@ class ObjectStorageService {
         val policyConds = PolicyConditions()
         policyConds.addConditionItem(PolicyConditions.COND_CONTENT_LENGTH_RANGE, 0, 1048576000)
         policyConds.addConditionItem(MatchMode.StartWith, PolicyConditions.COND_KEY, dir)
+        val expireEndTime = System.currentTimeMillis() + policyExpireTime
         val postPolicy = ossClient.generatePostPolicy(Date(expireEndTime), policyConds)
         ossClient.shutdown()
         return mutableMapOf(
-                "access-id" to accessId,
-                "policy" to BinaryUtil.toBase64String(postPolicy.toByteArray()),
-                "signature" to ossClient.calculatePostSignature(postPolicy)
+            "access-id" to accessId,
+            "policy" to BinaryUtil.toBase64String(postPolicy.toByteArray()),
+            "signature" to ossClient.calculatePostSignature(postPolicy)
         )
     }
 
     companion object {
         const val endpoint = "oss-cn-beijing.aliyuncs.com"
         const val dir = "kexie-bookshelf/"
-        val expireEndTime = System.currentTimeMillis() + 30 * 1000
-        const val accessId = "LTAI5t9ovqukqPMDsv8fqUFF"
-        const val accessKey = "EpCNhFVxQndsNegVmdKcLoYoSDr2QO"
+        const val policyExpireTime = 120 * 1000
+        const val accessId = "LTAI5tQfzXgsgJ7F9uwJnKzG"
+        const val accessKey = "f2E9fxf7GnfIxhoSSST5xhmZFzTuF4"
     }
 }
