@@ -1,8 +1,8 @@
 package org.kexie.bookshelfbackyard.service
 
+import org.kexie.bookshelfbackyard.mapper.MemberMapper
 import org.kexie.bookshelfbackyard.model.Member
 import org.kexie.bookshelfbackyard.model.MemberExample
-import org.kexie.bookshelfbackyard.mapper.MemberMapper
 import org.kexie.logUtility.common.Logger
 import org.springframework.stereotype.Service
 import javax.annotation.Resource
@@ -47,6 +47,5 @@ class MemberService {
             false
         }
     }
-
     fun getMemberByStuID(stu_id: String): Member = memberMapper.selectByPrimaryKey(stu_id)
 }

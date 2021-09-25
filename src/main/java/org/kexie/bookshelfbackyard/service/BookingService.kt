@@ -107,16 +107,26 @@ class BookingService {
         else -> userService.getUserByStuId(stuID)!!.remand(guid)
     }
 
-    fun insertBook(guid: String, isbn: String, name: String, author: String) =
-        if (GUID2Book[guid] == null) {
+    fun insertBook(guid: String, isbn: String, name: String, author: String): Int {
+        return if (GUID2Book[guid] == null) {
             val book = Book()
             book.guid = guid
             book.isbn = isbn
             book.name = name
             book.author = author
-            bookMapper.insert(book)
-            0
+            logger.log("Trying to insert book: ${book.name} ${book.isbn} (${book.guid})")
+            try {
+                bookMapper.insert(book)
+                logger.log(true, "\tNew book inserted: ${book.name}($guid, ISBN=$isbn)")
+                0
+            } catch (e: Exception) {
+                logger.log(false, "\tInset failed: ${e.toString()}")
+                2
+            }
         } else {
+            logger.log(false,"\t Insert failed: book already exist.")
             1 //book already exists
         }.also { updateLibrary() }
+    }
+
 }

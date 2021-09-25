@@ -48,13 +48,13 @@ class BookingController {
         val openIDCode = jsonObject["openid_code"].toString()
         val openID = wechatOpenAPIService.openIDOf(openIDCode)
         val uid = UserController.openID2User[openID] ?: return mutableMapOf("errorcode" to "3").also {
-            logger.debug("user tried to call borrow API without login: uid = ${UserController.openID2User[openID]}")
+            logger.log("user tried to call borrow API without login: uid = ${UserController.openID2User[openID]}")
         }
         val user = userService.getUserByUserID(uid)
         return if (user == null) {
             mutableMapOf("errorcode" to "3")
         } else {
-            logger.debug("${user.nickname} is trying to borrow $bookGUID")
+            logger.log("${user.nickname} is trying to borrow $bookGUID")
             val errorcode = bookingService.doBorrow(user.stuId, guid = bookGUID)
             mutableMapOf("errorcode" to errorcode.toString())
         }
@@ -76,16 +76,23 @@ class BookingController {
         val openIDCode = jsonObject["openid_code"].toString()
         val openID = wechatOpenAPIService.openIDOf(openIDCode)
         val uid = UserController.openID2User[openID] ?: return mutableMapOf("errorcode" to "3").also {
-            logger.debug("user tried to call remand API without login: uid = ${UserController.openID2User[openID]}")
+            logger.log("user tried to call remand API without login: uid = ${UserController.openID2User[openID]}")
         }
         val user = userService.getUserByUserID(uid)
         return if (user == null) {
             mutableMapOf("errorcode" to "3")
         } else {
-            logger.debug("${user.nickname} is trying to remand $bookGUID")
+            logger.log("${user.nickname} is trying to remand $bookGUID")
             val errorcode = bookingService.doRemand(user.stuId, guid = bookGUID)
             mutableMapOf("errorcode" to errorcode.toString())
         }
+    }
+
+    fun Logger.debugRequestEntity(jsonObject: JSONObject) {
+        var what = "\n\tEntity:\n"
+        for (anything in jsonObject)
+            what += "\t"+ anything.key + ": " + anything.value + "\n"
+        logger.debug(what)
     }
 
     @ResponseBody
@@ -110,10 +117,11 @@ class BookingController {
         val bookName = jsonObject["bookname"].toString()
         val authors = jsonObject["authors"].toString()
         val openID = wechatOpenAPIService.openIDOf(openIDCode)
-        val uid = UserController.openID2User[openID] ?: return mutableMapOf("errorcode" to "2").also {
-            logger.debug("user tried to call remand API without login: uid = ${UserController.openID2User[openID]}")
+        logger.debugRequestEntity(jsonObject)
+        val uid = UserController.openID2User[openID] ?: return mutableMapOf("errorcode" to "3").also {
+            logger.log("user tried to call putbook API without login: uid = ${UserController.openID2User[openID]}")
         }
-        val errorcode = bookingService.insertBook(guid = bookGUID, isbn, bookName, authors)
+        val errorcode = bookingService.insertBook(bookGUID.removePrefix("kexie_bookshelf_"), isbn, bookName, authors)
         return mutableMapOf("errorcode" to errorcode.toString())
     }
 

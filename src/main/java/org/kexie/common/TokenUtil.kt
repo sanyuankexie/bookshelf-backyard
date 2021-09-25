@@ -1,7 +1,5 @@
 package org.kexie.common
 
-import org.kexie.bookshelfbackyard.model.User
-import org.kexie.bookshelfbackyard.model.Member
 import org.kexie.logUtility.common.Logger
 import org.springframework.stereotype.Component
 import java.lang.Exception

@@ -50,7 +50,13 @@ class UserController {
     @ResponseBody
     @RequestMapping(value = ["/oss-signature"], method = [RequestMethod.GET])
     fun getOSSSignature(): MutableMap<String, String> {
-        return objectStorageService.getOSSPolicy()
+        return try {
+            var result = objectStorageService.getOSSPolicy()
+            result.put("result", "success")
+            result
+        } catch (e: Exception) {
+            mutableMapOf("result" to "failed")
+        }
     }
 
     @ResponseBody
