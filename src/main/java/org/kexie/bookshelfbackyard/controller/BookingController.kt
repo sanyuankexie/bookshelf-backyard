@@ -136,10 +136,16 @@ class BookingController {
              * @return a map contains   :
              *      all the books
              */
-    fun getAllBook(@RequestBody jsonObject: JSONObject): MutableMap<String, Book> {
+    fun getAllBook(@RequestBody jsonObject: JSONObject): MutableMap<String, MutableList<Book>> {
         val openIDCode = jsonObject["openid_code"].toString()
         val openID = wechatOpenAPIService.openIDOf(openIDCode)
-        UserController.openID2User[openID] ?: return mutableMapOf()
-        return bookingService.getAll()
+        logger.debugRequestEntity(jsonObject)
+        val uid = UserController.openID2User[openID] ?: return mutableMapOf<String,MutableList<Book>>().also {
+            logger.log("user tried to call bookshelf API without login: uid = ${UserController.openID2User[openID]}")
+        }
+        var library = mutableListOf<Book>()
+        for (anybook in bookingService.getAll())
+            library.add(anybook.value)
+        return mutableMapOf("book_list" to library)
     }
 }

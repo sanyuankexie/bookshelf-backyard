@@ -19,14 +19,12 @@ class BookingService {
     lateinit var userService: UserService
 
     init {
-        updateLibrary()
         logger.log(true, "Controller ${javaClass.simpleName} was successfully initialized")
     }
 
-    var GUID2Book = mutableMapOf<String, Book>()
-
-    fun updateLibrary() {
+    fun syncLocalLibCache() {
         val libTemp = mutableMapOf<String, Book>()
+        logger.log("Trying to syncing library local cache...")
         try {
             val example: BookExample = BookExample()
             example.createCriteria().andGuidIsNotNull()
@@ -36,9 +34,13 @@ class BookingService {
         } catch (e: Exception) {
             logger.log("failed when syncing library: $e")
         }
+        logger.log("Library sync finished. Find ${GUID2Book.size} books.")
     }
 
-    private fun bookWithGUID(guid: String): Book? = GUID2Book[guid]
+    private fun bookWithGUID(guid: String): Book?{
+        syncLocalLibCache()
+        return GUID2Book[guid]
+    }
 
     //    fun getBookByGUID(guid: String): Book? {
 //        return try {
@@ -48,7 +50,10 @@ class BookingService {
 //        }
 //    }
 
-    fun getAll(): MutableMap<String, Book> = GUID2Book
+    fun getAll(): MutableMap<String, Book>{
+        syncLocalLibCache()
+        return GUID2Book
+    }
 
     /**
      * @author VisualDust
@@ -58,8 +63,9 @@ class BookingService {
      * @throws NullPointerException if there is no such book
      * @return succeed or not
      */
-    private fun User.borrow(guid: String) =
-        if (bookWithGUID(guid)!!.borrowerStuId != null) {
+    private fun User.borrow(guid: String): Int {
+        syncLocalLibCache()
+        return if (bookWithGUID(guid)!!.borrowerStuId != null) {
             logger.log("User${this.nickname} tried to borrow the book but failed.")
             2 // someone has already borrowed the book
         } else {
@@ -68,7 +74,8 @@ class BookingService {
             bookMapper.updateByPrimaryKey(book)
             logger.log(true, "User${this.nickname} borrowed book called ${book.name}(${book.guid})")
             0 // borrow procedure succeed
-        }.also { updateLibrary() }
+        }
+    }
 
     fun doBorrow(stuID: String, guid: String) = when {
         userService.getUserByStuId(stuID) == null -> 3
@@ -89,6 +96,7 @@ class BookingService {
             logger.log("User${this.nickname} tried to remand the book but failed. No one borrowed the book before.")
             2
         } else {
+            syncLocalLibCache()
             val book = bookWithGUID(guid)
             if (book!!.borrowerStuId == this.stuId) {
                 book.borrowerStuId = null
@@ -99,7 +107,7 @@ class BookingService {
                 logger.log("User${this.nickname} tried to remand the book but failed. The user has not borrowed the book.")
                 2
             }
-        }.also { updateLibrary() }
+        }
 
     fun doRemand(stuID: String, guid: String) = when {
         userService.getUserByStuId(stuID) == null -> 3
@@ -108,6 +116,7 @@ class BookingService {
     }
 
     fun insertBook(guid: String, isbn: String, name: String, author: String): Int {
+        syncLocalLibCache()
         return if (GUID2Book[guid] == null) {
             val book = Book()
             book.guid = guid
@@ -120,13 +129,16 @@ class BookingService {
                 logger.log(true, "\tNew book inserted: ${book.name}($guid, ISBN=$isbn)")
                 0
             } catch (e: Exception) {
-                logger.log(false, "\tInset failed: ${e.toString()}")
+                logger.log(false, "\tInset failed: $e")
                 2
             }
         } else {
-            logger.log(false,"\t Insert failed: book already exist.")
+            logger.log(false, "\t Insert failed: book already exist.")
             1 //book already exists
-        }.also { updateLibrary() }
+        }
     }
 
+    companion object {
+        var GUID2Book = mutableMapOf<String, Book>()
+    }
 }
